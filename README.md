@@ -1,7 +1,7 @@
 # auto-submit
 # 今日校园每日自动提交疫情上报py脚本
-# 感谢大佬ZimoLoveShuang,这是项目[源地址](https://github.com/ZimoLoveShuang/auto-submit)
-# 此项目仅仅对大佬获取cookies不通用进行补充,但使用selenium会有点资源浪费,仅作个人使用,问题不大
+### 感谢大佬ZimoLoveShuang,这是项目[源地址](https://github.com/ZimoLoveShuang/auto-submit)
+### 此项目仅仅对大佬获取cookies不通用进行补充,但使用selenium会有点资源浪费,仅作个人使用,问题不大
 # 使用
 1. clone 或者 下载 此仓库到本地
     ```shell script
