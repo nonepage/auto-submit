@@ -18,7 +18,7 @@
     ```
 
 # 说明
-1. 此项目只适用于川信学子，其他学校，可以修改提交链接
+1. 此项目只适用于川信学子，其他学校，可以查看源码修改提交链接即可
 2. 此项目依赖python3.8运行环境，如没有，自行安装
 3. 此项目依赖configparser requests json time等python库，如没有，自行安装
 4. 此项目依赖selenium获取cookies,需要安装对应浏览器驱动版本,Google浏览器[点击这里](https://chromedriver.storage.googleapis.com/index.html),其他浏览器请自行百度
