@@ -111,7 +111,34 @@ def fillForm(form):
     form[7]['fieldItems']=[None]
     form[9]['value']='否'
     del form[9]['fieldItems'][0]
-
+    form[10]['value']='否'
+    del form[10]['fieldItems'][0]
+    form[11]['area1']='四川省'
+    form[11]['area2'] = '成都市'
+    form[11]['area3'] = '新都区'
+    form[12]['value']='否'
+    del form[12]['fieldItems'][0]
+    form[13]['value']='否'
+    del form[13]['fieldItems'][0]
+    form[14]['date'] = ""
+    form[14]['time'] = ""
+    form[15]['value']='否'
+    del form[15]['fieldItems'][0]
+    form[16]['value'] = '否'
+    del form [16]['fieldItems'][0]
+    form[17]['value'] = '否'
+    del form[17]['fieldItems'][0]
+    form[18]['fieldItems']=[None]
+    form[19]['value'] = '否'
+    del form[19]['fieldItems'][0]
+    form[20]["area1"] = ""
+    form[20]["area2"] = ""
+    form[20]["area3"] = ""
+    form[21]['value'] = '36~37.2℃'
+    del form[21]['fieldItems'][1]
+    del form[21]['fieldItems'][1]
+    form[22]['value'] = '是'
+    del form[22]['fieldItems'][1]
     return form
 
 
