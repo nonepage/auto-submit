@@ -1,26 +1,27 @@
 # auto-submit
 # 今日校园每日自动提交疫情上报py脚本
-
+### 感谢大佬ZimoLoveShuang,这是项目[源地址](https://github.com/ZimoLoveShuang/auto-submit)
+### 此项目仅仅对大佬获取cookies不通用进行补充,但使用selenium会有点资源浪费,仅作个人使用,问题不大
 # 使用
 1. clone 或者 下载 此仓库到本地
     ```shell script
-    git clone https://github.com/ZimoLoveShuang/auto-submit.git
+    git clone https://github.com/nonepage/auto-submit.git
     ```
-2. 打开本地仓库文件夹，配置config.ini中对应的学号（xh）和密码（pwd）还有地址（address），**注意这里的学号和密码都是智慧校园的学号和密码**
+2. 打开本地仓库文件夹，配置config.ini中对应的学号（xh）和密码（pwd），**注意这里的学号和密码都是智慧校园的学号和密码**
 3. 使用pip等 Python 包管理工具安装依赖库
     ```shell script
     pip install requests
     ```
-4. 利用python命令执行submit.py脚本
+4. 利用python命令执行main.py脚本
     ```shell script
-    python submit.py
+    python main.py
     ```
 
 # 说明
-1. 此项目只适用于宜宾学院学子，其他学校，可以按照设计思路，抓包实现
+1. 此项目只适用于川信学子，其他学校，可以查看源码修改提交链接即可
 2. 此项目依赖python3.8运行环境，如没有，自行安装
 3. 此项目依赖configparser requests json time等python库，如没有，自行安装
-4. 此项目依赖上一个爬虫项目[宜宾学院教务系统成绩爬虫](https://github.com/ZimoLoveShuang/yibinu-score-crawler.git)
+4. 此项目依赖selenium获取cookies,需要安装对应浏览器驱动版本,Google浏览器[点击这里](https://chromedriver.storage.googleapis.com/index.html),其他浏览器请自行百度
 5. 此项目默认提交全部正常的情况，如果有其他情况，请自行在今日校园app上提交
 
 # 设计思路
