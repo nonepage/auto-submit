@@ -75,14 +75,42 @@ def queryForm(cookies):
                         headers=headers, cookies=cookies, data=json.dumps(
             {"pageSize": 10, "pageNumber": 1, "formWid": formWid, "collectorWid": collectWid}))
 
-    form = res.json()['datas']['rows']
+    form_1 = res.json()['datas']['rows']
+    res = requests.post(url='https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/getFormFields',
+                        headers=headers, cookies=cookies, data=json.dumps(
+            {"pageSize": 10, "pageNumber": 2, "formWid": formWid, "collectorWid": collectWid}))
+    form_2 = res.json()['datas']['rows']
+    res = requests.post(url='https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/getFormFields',
+                        headers=headers, cookies=cookies, data=json.dumps(
+            {"pageSize": 10, "pageNumber": 3, "formWid": formWid, "collectorWid": collectWid}))
+    form_3 = res.json()['datas']['rows']
+    form = form_1 + form_2 + form_3
     return {'collectWid': collectWid, 'formWid': formWid, 'schoolTaskWid': schoolTaskWid, 'form': form}
 
 
 # 填写form
 def fillForm(form):
-
-    form=[{"wid":"2231","formWid":"98","fieldType":2,"title":"你的学生类别","description":"","minLength":0,"sort":"1","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field001","value":"专科生","fieldItems":[{"itemWid":"8540","content":"专科生","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2232","formWid":"98","fieldType":2,"title":"你的生源地","description":"","minLength":0,"sort":"2","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field002","value":"内地","fieldItems":[{"itemWid":"8544","content":"内地","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2233","formWid":"98","fieldType":2,"title":"你是否有疑似/确诊新冠肺炎？","description":"","minLength":0,"sort":"3","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field003","value":"否","fieldItems":[{"itemWid":"8547","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2234","formWid":"98","fieldType":2,"title":"你是否有发热、咳嗽等症状","description":"","minLength":0,"sort":"4","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field004","value":"否","fieldItems":[{"itemWid":"8551","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2235","formWid":"98","fieldType":2,"title":"你是否就诊或住院","description":"","minLength":0,"sort":"5","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field005","value":"否","fieldItems":[{"itemWid":"8552","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2236","formWid":"98","fieldType":1,"title":"如果就诊或住院，请填写你去的医院名称（未就诊、住院的不填）","description":"","minLength":1,"sort":"6","maxLength":300,"isRequired":0,"imageCount":None,"hasOtherItems":0,"colName":"field006","value":"","fieldItems":[]},{"wid":"2237","formWid":"98","fieldType":2,"title":"你当前是否被隔离？","description":"","minLength":0,"sort":"7","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field007","value":"否","fieldItems":[{"itemWid":"8556","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2238","formWid":"98","fieldType":2,"title":"如果被隔离，请选择你的隔离方式（未被隔离的不填）","description":"","minLength":0,"sort":"8","maxLength":None,"isRequired":0,"imageCount":None,"hasOtherItems":0,"colName":"field008","value":"","fieldItems":[None]},{"wid":"2239","formWid":"98","fieldType":1,"title":"如果被隔离，请填写目前被隔离的详细地址（未被隔离的不填）","description":"省、市、区/县、具体地址，如江苏省南京市江宁区利源南路55号1幢1单元202室","minLength":1,"sort":"9","maxLength":300,"isRequired":0,"imageCount":None,"hasOtherItems":0,"colName":"field009","value":"","fieldItems":[]},{"wid":"2240","formWid":"98","fieldType":2,"title":"春节期间是否在校","description":"","minLength":0,"sort":"10","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field010","value":"否","fieldItems":[{"itemWid":"8560","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2241","formWid":"98","fieldType":2,"title":"目前是否在校","description":"","minLength":0,"sort":"11","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field011","value":"否","fieldItems":[{"itemWid":"8562","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2242","formWid":"98","fieldType":1,"title":"你目前所在城市","description":"","minLength":1,"sort":"12","maxLength":300,"isRequired":1,"imageCount":-2,"hasOtherItems":0,"colName":"field012","value":"四川省/成都市/新都区","fieldItems":[],"area1":"四川省","area2":"成都市","area3":"新都区"},{"wid":"2243","formWid":"98","fieldType":2,"title":"是否已返回或从未离开学校所在的城市","description":"","minLength":0,"sort":"13","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field013","value":"否","fieldItems":[{"itemWid":"8564","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2244","formWid":"98","fieldType":2,"title":"是否确定返回学校时间","description":"","minLength":0,"sort":"14","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field014","value":"否","fieldItems":[{"itemWid":"8566","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2245","formWid":"98","fieldType":1,"title":"如果已确定，请选择你的返回时间（未确定的不填）","description":"","minLength":1,"sort":"15","maxLength":300,"isRequired":0,"imageCount":-1,"hasOtherItems":0,"colName":"field015","value":"","fieldItems":[],"date":"","time":""},{"wid":"2246","formWid":"98","fieldType":2,"title":"近1个月是否去过湖北或接触过湖北地区人士","description":"","minLength":0,"sort":"16","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field016","value":"否","fieldItems":[{"itemWid":"8568","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2247","formWid":"98","fieldType":2,"title":"近1个月是否接触过确诊病例","description":"","minLength":0,"sort":"17","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field017","value":"否","fieldItems":[{"itemWid":"8570","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2248","formWid":"98","fieldType":2,"title":"近1个月是否接触过疑似病例","description":"","minLength":0,"sort":"18","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field018","value":"否","fieldItems":[{"itemWid":"8572","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2249","formWid":"98","fieldType":2,"title":"如果有密切接触，请选择你和密切接触者（疑似/确诊/湖北）的关系（没有接触的不填）","description":"","minLength":0,"sort":"19","maxLength":None,"isRequired":0,"imageCount":None,"hasOtherItems":0,"colName":"field019","value":"","fieldItems":[None]},{"wid":"2250","formWid":"98","fieldType":2,"title":"过去14天是否有共同居住者（家属或合租者）从其他城市返回的情况","description":"","minLength":0,"sort":"20","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field020","value":"否","fieldItems":[{"itemWid":"8576","content":"否","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2251","formWid":"98","fieldType":1,"title":"如果有，请选择共同居住者是从哪个城市（国家）返回的？（上一题如选\"否\"此题不填）","description":"","minLength":1,"sort":"21","maxLength":300,"isRequired":0,"imageCount":-2,"hasOtherItems":0,"colName":"field021","value":"","fieldItems":[],"area1":"","area2":"","area3":""},{"wid":"2252","formWid":"98","fieldType":2,"title":"你今天的体温是多少","description":"","minLength":0,"sort":"22","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field022","value":"36~37.2℃","fieldItems":[{"itemWid":"8577","content":"36~37.2℃","isOtherItems":0,"contendExtend":"","isSelected":1}]},{"wid":"2253","formWid":"98","fieldType":2,"title":"本人是否承诺以上所填报的全部内容均属实、准确，不存在任何隐瞒与不实的情况，更无遗漏之处","description":"","minLength":0,"sort":"23","maxLength":None,"isRequired":1,"imageCount":None,"hasOtherItems":0,"colName":"field023","value":"是","fieldItems":[{"itemWid":"8580","content":"是","isOtherItems":0,"contendExtend":"","isSelected":1}]}]
+    form[0]['value'] = "专科生"
+    del form[0]['fieldItems'][1]
+    del form[0]['fieldItems'][1]
+    del form[0]['fieldItems'][1]
+    form[1]['value']='内地'
+    del form[1]['fieldItems'][1]
+    del form[1]['fieldItems'][1]
+    form[2]['value'] = '否'
+    del form[2]['fieldItems'][1]
+    del form[2]['fieldItems'][1]
+    form[3]['value']='否'
+    del form[3]['fieldItems'][0]
+    form[4]['value']='否'
+    del form[4]['fieldItems'][1]
+    del form[4]['fieldItems'][1]
+    del form[4]['fieldItems'][1]
+    form[6]['value'] = '否'
+    del form[6]['fieldItems'][0]
+    form[7]['fieldItems']=[None]
+    form[9]['value']='否'
+    del form[9]['fieldItems'][0]
 
     return form
 
