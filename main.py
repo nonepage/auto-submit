@@ -177,6 +177,7 @@ def main():
             params = queryForm(cookies)
             if str(params) == 'None':
                 log('获取最新待填写问卷失败，可能是辅导员还没有发布。。。')
+                time.sleep(5)
                 exit(-1)
             log('查询最新待填写问卷成功。。。')
             log('正在自动填写问卷。。。')
@@ -187,17 +188,21 @@ def main():
                              cookies)
             if msg == 'SUCCESS':
                 log('自动提交成功！')
+                time.sleep(5)
                 exit(-1)
             elif msg == '该收集已填写无需再次填写':
                 log('今日已提交！')
+                time.sleep(5)
                 exit(-1)
             else:
                 log('自动提交失败。。。')
                 log('错误是' + msg)
+                time.sleep(5)
                 exit(-1)
         else:
             log('模拟登陆失败。。。')
             log('原因可能是学号或密码错误，请检查配置后，重启脚本。。。')
+            time.sleep(5)
             exit(-1)
 
 
