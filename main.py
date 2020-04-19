@@ -4,6 +4,7 @@ import sys
 import requests
 import json
 import time
+import os
 from selenium import webdriver
 
 # 输出调试信息，并及时刷新缓冲区
@@ -28,7 +29,8 @@ def getConfig(file='config.ini'):
 def getCookies(config):
     from selenium import webdriver
 
-    wd = webdriver.Chrome(r'd:\chromedriver.exe')
+    hear = os.getcwd() + '\\chromedriver.exe'
+    wd = webdriver.Chrome(hear)
     wd.get('http://authserver.scitc.com.cn/authserver/login?service=https%3A%2F%2Fscitc.cpdaily.com%2Fportal%2Flogin')
     username = wd.find_element_by_id("username")
     username.send_keys(config['xh'])
@@ -103,7 +105,6 @@ def fillForm(form):
     form[3]['value']='否'
     del form[3]['fieldItems'][0]
     form[4]['value']='否'
-    del form[4]['fieldItems'][1]
     del form[4]['fieldItems'][1]
     del form[4]['fieldItems'][1]
     form[6]['value'] = '否'
