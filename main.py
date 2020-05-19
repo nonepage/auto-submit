@@ -5,8 +5,41 @@ import requests
 import json
 import time
 import os
-from selenium import webdriver
+import re
+import random
+import base64
+import math
+from Cryptodome.Cipher import AES
+from Cryptodome.Util.Padding import pad
+from lxml import etree
 
+# 模拟前端CryptoJS加密
+aes_chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+aes_chars_len = len(aes_chars)
+def randomString(len):
+  retStr = ''
+  i=0
+  while i < len:
+    retStr += aes_chars[(math.floor(random.random() * aes_chars_len))]
+    i=i+1
+  return retStr
+
+def add_to_16(s):
+    while len(s) % 16 != 0:
+        s += '\0'
+    return str.encode(s,'utf-8')
+
+def getAesString(data,key,iv):  # AES-128-CBC加密模式，key需要为16位，key和iv可以一样
+    key = re.sub('/(^\s+)|(\s+$)/g', '', key)
+    aes = AES.new(str.encode(key),AES.MODE_CBC,str.encode(iv))
+    pad_pkcs7 = pad(data.encode('utf-8'), AES.block_size, style='pkcs7')  # 选择pkcs7补全
+    encrypted =aes.encrypt(pad_pkcs7)
+    # print(encrypted)
+    return str(base64.b64encode(encrypted),'utf-8')
+
+def encryptAES(data,aesKey):
+    encrypted =getAesString(randomString(64)+data,aesKey,randomString(16))
+    return encrypted
 # 输出调试信息，并及时刷新缓冲区
 def log(content):
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' ' + str(content))
@@ -14,36 +47,66 @@ def log(content):
 
 
 # 读取配置
-def getConfig(file='config.ini'):
-    config = configparser.ConfigParser()
-    config.read(file, encoding='utf-8')
+def getConfig():
 
-
-    xh = config['user']['xh']
-    pwd = config['user']['pwd']
-    address = config['user']['address']
+    xh = '****'
+    pwd = '*****'
+    address = '中国四川省成都市新都区'
     return {"xh": xh, "pwd": pwd, "address": address}
 
 
 # 登陆并获取cookies
 def getCookies(config):
-    from selenium import webdriver
+    server = requests.session()
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.16 Safari/537.36 Edg/79.0.309.12'
+    }
+    login_html = server.get('http://authserver.scitc.com.cn/authserver/login?service=https%3A%2F%2Fscitc.cpdaily.com%2Fportal%2Flogin', headers=headers).text
+    html = etree.HTML(login_html)
+    element = html.xpath('/html/script')[1].text  # 获取加密密钥
 
-    hear = os.getcwd() + '\\chromedriver.exe'
-    wd = webdriver.Chrome(hear)
-    wd.get('http://authserver.scitc.com.cn/authserver/login?service=https%3A%2F%2Fscitc.cpdaily.com%2Fportal%2Flogin')
-    username = wd.find_element_by_id("username")
-    username.send_keys(config['xh'])
-    password = wd.find_element_by_id('password')
-    password.send_keys(config['pwd'])
-    password.submit()
-    time.sleep(2)
-    cookie = wd.get_cookies()
-    cookies = {cookie[0]['name']: cookie[0]['value'], cookie[1]['name']: cookie[1]['value']}
-    wd.quit()
+    # 获取表单项
+    pwdDefaultEncryptSalt = element.split('\"')[3].strip()
+    lt = html.xpath("//input[@type='hidden' and @name='lt']")[0].attrib['value']
+    dllt = html.xpath("//input[@type='hidden' and @name='dllt']")[0].attrib['value']
+    execution = html.xpath("//input[@type='hidden' and @name='execution']")[0].attrib['value']
+    rmShown = html.xpath("//input[@type='hidden' and @name='rmShown']")[0].attrib['value']
+
+    password = encryptAES(config['pwd'], pwdDefaultEncryptSalt)  # 加密密码
+    params = {
+        "username": config['xh'],
+        "password": password,
+        "lt": lt,
+        "dllt": dllt,
+        "execution": execution,
+        "_eventId": "submit",
+        "rmShown": rmShown
+    }
+
+    res = server.post('http://authserver.scitc.com.cn/authserver/login?service=https%3A%2F%2Fscitc.cpdaily.com%2Fportal%2Flogin', data=params, headers=headers)
+    # 登陆成功后获取cookie (MOD_AUTH_CAS项)
+    cookies = server.cookies
     return cookies
 
+#表单填写检测
+def agin(cookies):
+    queryCollectWidUrl = 'https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/queryCollectorProcessingList'
+    headers = {
+        'Accept': 'application/json, text/plain, */*',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 4.4.4; OPPO R11 Plus Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Safari/537.36 yiban/8.1.11 cpdaily/8.1.11 wisedu/8.1.11',
+        'content-type': 'application/json',
+        'Accept-Encoding': 'gzip,deflate',
+        'Accept-Language': 'zh-CN,en-US;q=0.8',
+        'Content-Type': 'application/json;charset=UTF-8'
+    }
 
+    params = {
+        'pageSize': 6,
+        'pageNumber': 1
+    }
+
+    res = requests.post(queryCollectWidUrl, headers=headers, cookies=cookies, data=json.dumps(params))
+    print(res.json()['datas']['rows'])
 # 查询表单
 def queryForm(cookies):
     queryCollectWidUrl = 'https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/queryCollectorProcessingList'
@@ -188,10 +251,12 @@ def main():
                              cookies)
             if msg == 'SUCCESS':
                 log('自动提交成功！')
+                agin(cookies)
                 time.sleep(5)
                 exit(-1)
             elif msg == '该收集已填写无需再次填写':
                 log('今日已提交！')
+                agin(cookies)
                 time.sleep(5)
                 exit(-1)
             else:
