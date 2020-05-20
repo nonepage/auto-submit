@@ -54,14 +54,15 @@ def log(content):
 def getConfig():
     fo = open("init.txt", "a+")
     fo.seek(0)
-    address = '中国四川省成都市新都区'
     xh = fo.readline().strip('\n')
-    pwd = fo.readline()
+    pwd = fo.readline().strip('\n')
+    address = fo.readline()
     if xh == '':
         print("第一次初始化")
         xh = input("账号：")
         pwd = input("密码：")
-        write_f = [xh,"\n",pwd]
+        address = input("地址（例如：中国xx省xx市xx区）:")
+        write_f = [xh, "\n", pwd, '\n', address]
         fo.writelines(write_f)
         fo.close()
 
