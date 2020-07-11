@@ -161,7 +161,7 @@ def queryForm(cookies):
 def fillForm(form):
     form[0]['value'] = "<37.3℃"
     del form[0]['fieldItems'][1]
-    form[1]['value']='36.5'
+    form[1]['value'] = '36.5'
     form[2]['value'] = '正常'
     del form[2]['fieldItems'][1]
     del form[2]['fieldItems'][1]
@@ -177,7 +177,7 @@ def fillForm(form):
     del form[3]['fieldItems'][1]
     del form[3]['fieldItems'][1]
     del form[3]['fieldItems'][1]
-    form[4]['value']='5412'
+    form[4]['value'] = '5412'
     return form
 
 
