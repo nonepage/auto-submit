@@ -1,17 +1,17 @@
 # coding: utf-8
-import configparser
 import sys
+import time
+
 import requests
 import json
-import time
-import os
 import re
 import random
 import base64
 import math
+import uvicorn
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad
-from apscheduler.schedulers.blocking import BlockingScheduler
+from fastapi import FastAPI
 from lxml import etree
 
 # 模拟前端CryptoJS加密
@@ -48,30 +48,6 @@ def encryptAES(data, aesKey):
     return encrypted
 
 
-# 输出调试信息，并及时刷新缓冲区
-def log(content):
-    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' ' + str(content))
-    sys.stdout.flush()
-
-
-# 读取配置
-def getConfig():
-    # fo = open("init.txt", "a+")
-    # fo.seek(0)
-    # xh = fo.readline().strip('\n')
-    # pwd = fo.readline().strip('\n')
-    # address = fo.readline()
-    # if xh == '':
-    #     print("第一次初始化")
-    #     xh = input("账号：")
-    #     pwd = input("密码：")
-    #     address = input("地址（例如：中国xx省xx市xx区）:")
-    #     write_f = [xh, "\n", pwd, '\n', address]
-    #     fo.writelines(write_f)
-    #     fo.close()
-    return {"xh": account, "pwd": password, "address": address}
-
-
 # 登陆并获取cookies
 def getCookies(config):
     server = requests.session()
@@ -101,11 +77,13 @@ def getCookies(config):
         "_eventId": "submit",
         "rmShown": rmShown
     }
-
-    res = server.post(
-        'http://authserver.scitc.com.cn/authserver/login?service=https%3A%2F%2Fscitc.cpdaily.com%2Fportal%2Flogin',
-        data=params, headers=headers)
-    # 登陆成功后获取cookie (MOD_AUTH_CAS项)
+    while True:
+        res = server.post(
+            'http://authserver.scitc.com.cn/authserver/login?service=https%3A%2F%2Fscitc.cpdaily.com%2Fportal%2Flogin',
+            data=params, headers=headers)
+        # 登陆成功后获取cookie (MOD_AUTH_CAS项)
+        if server.cookies.get('MOD_AUTH_CAS') is not None:
+            break
     cookies = server.cookies
     return cookies
 
@@ -147,49 +125,112 @@ def queryForm(cookies):
         'pageSize': 6,
         'pageNumber': 1
     }
-
-    res = requests.post(queryCollectWidUrl, headers=headers, cookies=cookies, data=json.dumps(params))
-
-    if len(res.json()['datas']['rows']) < 1:
-        return None
+    while True:
+        res = requests.post(queryCollectWidUrl, headers=headers, cookies=cookies, data=json.dumps(params))
+        if len(res.json()['datas']['rows']) >= 1:
+            break
 
     collectWid = res.json()['datas']['rows'][0]['wid']
     formWid = res.json()['datas']['rows'][0]['formWid']
 
     res = requests.post(url='https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/detailCollector',
-                        headers=headers, cookies=cookies, data=json.dumps({"collectorWid": collectWid}));
+                        headers=headers, cookies=cookies, data=json.dumps({"collectorWid": collectWid}))
     schoolTaskWid = res.json()['datas']['collector']['schoolTaskWid']
 
     res = requests.post(url='https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/getFormFields',
                         headers=headers, cookies=cookies, data=json.dumps(
             {"pageSize": 10, "pageNumber": 1, "formWid": formWid, "collectorWid": collectWid}))
 
-    form = res.json()['datas']['rows']
+
+
+    form_1 = res.json()['datas']['rows']
+
+    res = requests.post(url='https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/getFormFields',
+                        headers=headers, cookies=cookies, data=json.dumps(
+            {"pageSize": 10, "pageNumber": 2, "formWid": formWid, "collectorWid": collectWid}))
+    form_2 = res.json()['datas']['rows']
+
+    res = requests.post(url='https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/getFormFields',
+                        headers=headers, cookies=cookies, data=json.dumps(
+            {"pageSize": 10, "pageNumber": 3, "formWid": formWid, "collectorWid": collectWid}))
+    form_3 = res.json()['datas']['rows']
+
+
+    form = form_1 + form_2 + form_3
 
     return {'collectWid': collectWid, 'formWid': formWid, 'schoolTaskWid': schoolTaskWid, 'form': form}
 
 
 # 填写form
-def fillForm(form):
-    form[0]['value'] = "<37.3℃"
+def fillForm(form, Sheng, Shi, Qu):
+    form[0]['value'] = "专科生"
     del form[0]['fieldItems'][1]
-    form[1]['value'] = '36.5'
-    form[2]['value'] = '正常'
+    del form[0]['fieldItems'][1]
+    del form[0]['fieldItems'][1]
+
+    form[1]['value'] = '内地'
+    del form[1]['fieldItems'][1]
+    del form[1]['fieldItems'][1]
+
+    form[2]['value'] = '否'
     del form[2]['fieldItems'][1]
     del form[2]['fieldItems'][1]
-    del form[2]['fieldItems'][1]
-    del form[2]['fieldItems'][1]
-    del form[2]['fieldItems'][1]
-    del form[2]['fieldItems'][1]
-    form[3]['value'] = '雪峰校区5#公寓'
+
+    form[3]['value'] = '否'
     del form[3]['fieldItems'][0]
-    del form[3]['fieldItems'][0]
-    del form[3]['fieldItems'][0]
-    del form[3]['fieldItems'][0]
-    del form[3]['fieldItems'][1]
-    del form[3]['fieldItems'][1]
-    del form[3]['fieldItems'][1]
-    form[4]['value'] = '5412'
+    form[4]['value'] = '否'
+    del form[4]['fieldItems'][1]
+    del form[4]['fieldItems'][1]
+
+    # del form[4]['fieldItems'][1]
+
+    form[6]['value'] = '否'
+    del form[6]['fieldItems'][0]
+
+    form[7]['fieldItems'] = [None]
+
+    form[9]['value'] = '否'
+    del form[9]['fieldItems'][0]
+
+    form[10]['value'] = '否'
+    del form[10]['fieldItems'][0]
+    form[11]['area1'] = Sheng
+    form[11]['area2'] = Shi
+    form[11]['area3'] = Qu
+
+    form[12]['value'] = '否'
+    del form[12]['fieldItems'][0]
+
+    form[13]['value'] = '否'
+    del form[13]['fieldItems'][0]
+
+    form[14]['date'] = ""
+    form[14]['time'] = ""
+
+    form[15]['value'] = '否'
+    del form[15]['fieldItems'][0]
+
+    form[16]['value'] = '否'
+    del form[16]['fieldItems'][0]
+
+    form[17]['value'] = '否'
+    del form[17]['fieldItems'][0]
+
+    form[18]['fieldItems'] = [None]
+
+    form[19]['value'] = '否'
+    del form[19]['fieldItems'][0]
+
+    form[20]["area1"] = ""
+    form[20]["area2"] = ""
+    form[20]["area3"] = ""
+
+    form[21]['value'] = '36~37.2℃'
+    del form[21]['fieldItems'][1]
+    del form[21]['fieldItems'][1]
+
+    form[22]['value'] = '是'
+    del form[22]['fieldItems'][1]
     return form
 
 
@@ -216,76 +257,39 @@ def submitForm(formWid, address, collectWid, schoolTaskWid, form, cookies):
     return msg
 
 
-def main(account, password):
-    config = getConfig()
-    log('脚本开始执行。。。')
+# '四川省广元市利州区滨河北路二段'
+def main(username, password, gpsaddress, Sheng, Shi, Qu):
+    config = {"xh": username, "pwd": password, "address": gpsaddress}
     cookies = getCookies(config)
+    print(cookies.get('MOD_AUTH_CAS'))
     if str(cookies) != 'None':
-        log('模拟登陆成功。。。')
-        log('正在查询最新待填写问卷。。。')
-        params = queryForm(cookies)
-        if str(params) == 'None':
-            log('获取最新待填写问卷失败，可能是辅导员还没有发布。。。')
-            time.sleep(5)
-            # exit(-1)
-        log('查询最新待填写问卷成功。。。')
-        log('正在自动填写问卷。。。')
-        form = fillForm(params['form'])
-        log('填写问卷成功。。。')
-        log('正在自动提交。。。')
-        msg = submitForm(params['formWid'], config['address'], params['collectWid'], params['schoolTaskWid'], form,
-                         cookies)
-        if msg == 'SUCCESS':
-            log('自动提交成功！')
-            agin(cookies)
-            time.sleep(5)
-            # exit(-1)
-        elif msg == '该收集已填写无需再次填写':
-            log('今日已提交！')
-            agin(cookies)
-            time.sleep(5)
-            # exit(-1)
-        else:
-            log('自动提交失败。。。')
-            log('错误是' + msg)
-            time.sleep(5)
-            # exit(-1)
-    else:
-        log('模拟登陆失败。。。')
-        log('原因可能是学号或密码错误，请检查配置后，重启脚本。。。')
-        time.sleep(5)
-        # exit(-1)
+        try:
+            params = queryForm(cookies)
+            # print(params)
+            if params != None:
+                form = fillForm(params['form'], Sheng, Shi, Qu)
+                msg = submitForm(params['formWid'], config['address'], params['collectWid'], params['schoolTaskWid'],
+                                 form, cookies)
+                if msg == 'SUCCESS':
+                    return '自动提交完成'  # 自动提交完成
+                elif msg == '该收集已填写无需再次填写':
+                    return '已完成无需重复提交'  # 已完成无需重复提交
+                else:
+                    return '提交错误'  # 提交错误
+            # 如果没有获取到数据
+            else:
+                return "获取问卷数据失败"  # 获取问卷数据失败
+        except Exception as e:
+            return "未知错误" + str(e)  # 未知错误
 
 
-def submitFormScheduler():
-    main(account, password)
+app = FastAPI()
+
+
+@app.post("/run/")
+def sign(username: str, password: str, gpsaddress: str, Sheng: str, Shi: str, Qu: str):
+    return [main(username, password, gpsaddress, Sheng, Shi, Qu)]
 
 
 if __name__ == '__main__':
-    account = 'xxxx'  # 学号
-    password = 'xxxx'  # 密码
-    address = '四川省广元市利州区'  # 定位地址
-    print(' ─────────▄──────────────▄──── \n',
-          ' ─ wow ──▌▒█───────────▄▀▒▌─── \n',
-          ' ────────▌▒▒▀▄───────▄▀▒▒▒▐─── \n',
-          ' ───────▐▄▀▒▒▀▀▀▀▄▄▄▀▒▒▒▒▒▐─── \n',
-          ' ─────▄▄▀▒▒▒▒▒▒▒▒▒▒▒█▒▒▄█▒▐─── \n',
-          ' ───▄▀▒▒▒▒▒▒ such difference ─ \n',
-          ' ──▐▒▒▒▄▄▄▒▒▒▒▒▒▒▒▒▒▒▒▒▀▄▒▒▌── \n',
-          ' ──▌▒▒▐▄█▀▒▒▒▒▄▀█▄▒▒▒▒▒▒▒█▒▐── \n',
-          ' ─▐▒▒▒▒▒▒▒▒▒▒▒▌██▀▒▒▒▒▒▒▒▒▀▄▌─ \n',
-          ' ─▌▒▀▄██▄▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▌─ \n',
-          ' ─▌▀▐▄█▄█▌▄▒▀▒▒▒▒▒▒░░░░░░▒▒▒▐─ \n',
-          ' ▐▒▀▐▀▐▀▒▒▄▄▒▄▒▒▒ electrons ▒▌ \n',
-          ' ▐▒▒▒▀▀▄▄▒▒▒▄▒▒▒▒▒▒░░░░░░▒▒▒▐─ \n',
-          ' ─▌▒▒▒▒▒▒▀▀▀▒▒▒▒▒▒▒▒░░░░▒▒▒▒▌─ \n',
-          ' ─▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▐── \n',
-          ' ──▀ amaze ▒▒▒▒▒▒▒▒▒▒▒▄▒▒▒▒▌── \n',
-          ' ────▀▄▒▒▒▒▒▒▒▒▒▒▄▄▄▀▒▒▒▒▄▀─── \n',
-          ' ───▐▀▒▀▄▄▄▄▄▄▀▀▀▒▒▒▒▒▄▄▀───── \n',
-          ' ──▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▀▀──────── \n'
-          )
-    Scheduler = BlockingScheduler()
-    Scheduler.add_job(submitFormScheduler, 'cron', hour='6,12', minute=2)  # 分为6 12 分别执行一次
-    Scheduler.start()
-    # Scheduler.print_jobs()
+    uvicorn.run(app, host="0.0.0.0", port=8001)
