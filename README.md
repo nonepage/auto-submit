@@ -22,7 +22,7 @@ import requests
         'Shi': '成都市',
         'Qu': '金牛区'
     }
-requests.post('http://49.234.226.191:8001/run/', params=data)
+requests.post('http://xxxx:8001/run/', params=data)
 
 ```
 | 请求方式  | 参数 | 说明 | 是否必须 |
