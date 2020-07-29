@@ -141,8 +141,6 @@ def queryForm(cookies):
                         headers=headers, cookies=cookies, data=json.dumps(
             {"pageSize": 10, "pageNumber": 1, "formWid": formWid, "collectorWid": collectWid}))
 
-
-
     form_1 = res.json()['datas']['rows']
 
     res = requests.post(url='https://scitc.cpdaily.com/wec-counselor-collector-apps/stu/collector/getFormFields',
@@ -155,7 +153,6 @@ def queryForm(cookies):
             {"pageSize": 10, "pageNumber": 3, "formWid": formWid, "collectorWid": collectWid}))
     form_3 = res.json()['datas']['rows']
 
-
     form = form_1 + form_2 + form_3
 
     return {'collectWid': collectWid, 'formWid': formWid, 'schoolTaskWid': schoolTaskWid, 'form': form}
@@ -163,74 +160,88 @@ def queryForm(cookies):
 
 # 填写form
 def fillForm(form, Sheng, Shi, Qu):
-    form[0]['value'] = "专科生"
+    # form[0]['value'] = "专科生"
+    # del form[0]['fieldItems'][1]
+    # del form[0]['fieldItems'][1]
+    # del form[0]['fieldItems'][1]
+    #
+    # form[1]['value'] = '内地'
+    # del form[1]['fieldItems'][1]
+    # del form[1]['fieldItems'][1]
+    #
+    # form[2]['value'] = '否'
+    # del form[2]['fieldItems'][1]
+    # del form[2]['fieldItems'][1]
+    #
+    # form[3]['value'] = '否'
+    # del form[3]['fieldItems'][0]
+    # form[4]['value'] = '否'
+    # del form[4]['fieldItems'][1]
+    # del form[4]['fieldItems'][1]
+    #
+    # # del form[4]['fieldItems'][1]
+    #
+    # form[6]['value'] = '否'
+    # del form[6]['fieldItems'][0]
+    #
+    # form[7]['fieldItems'] = [None]
+    #
+    # form[9]['value'] = '否'
+    # del form[9]['fieldItems'][0]
+    #
+    # form[10]['value'] = '否'
+    # del form[10]['fieldItems'][0]
+    # form[11]['area1'] = Sheng
+    # form[11]['area2'] = Shi
+    # form[11]['area3'] = Qu
+    #
+    # form[12]['value'] = '否'
+    # del form[12]['fieldItems'][0]
+    #
+    # form[13]['value'] = '否'
+    # del form[13]['fieldItems'][0]
+    #
+    # form[14]['date'] = ""
+    # form[14]['time'] = ""
+    #
+    # form[15]['value'] = '否'
+    # del form[15]['fieldItems'][0]
+    #
+    # form[16]['value'] = '否'
+    # del form[16]['fieldItems'][0]
+    #
+    # form[17]['value'] = '否'
+    # del form[17]['fieldItems'][0]
+    #
+    # form[18]['fieldItems'] = [None]
+    #
+    # form[19]['value'] = '否'
+    # del form[19]['fieldItems'][0]
+    #
+    # form[20]["area1"] = ""
+    # form[20]["area2"] = ""
+    # form[20]["area3"] = ""
+    #
+    # form[21]['value'] = '36~37.2℃'
+    # del form[21]['fieldItems'][1]
+    # del form[21]['fieldItems'][1]
+    #
+    # form[22]['value'] = '是'
+    # del form[22]['fieldItems'][1]
+    form[0]['value'] = "<37.3℃"
     del form[0]['fieldItems'][1]
-    del form[0]['fieldItems'][1]
-    del form[0]['fieldItems'][1]
-
-    form[1]['value'] = '内地'
-    del form[1]['fieldItems'][1]
-    del form[1]['fieldItems'][1]
-
-    form[2]['value'] = '否'
-    del form[2]['fieldItems'][1]
-    del form[2]['fieldItems'][1]
+    form[1]['value'] = '36.3'
+    form[2]['value'] = '正常'
 
     form[3]['value'] = '否'
     del form[3]['fieldItems'][0]
+
     form[4]['value'] = '否'
-    del form[4]['fieldItems'][1]
-    del form[4]['fieldItems'][1]
+    del form[4]['fieldItems'][0]
 
-    # del form[4]['fieldItems'][1]
+    form[5]['value'] = '是'
+    del form[5]['fieldItems'][1]
 
-    form[6]['value'] = '否'
-    del form[6]['fieldItems'][0]
-
-    form[7]['fieldItems'] = [None]
-
-    form[9]['value'] = '否'
-    del form[9]['fieldItems'][0]
-
-    form[10]['value'] = '否'
-    del form[10]['fieldItems'][0]
-    form[11]['area1'] = Sheng
-    form[11]['area2'] = Shi
-    form[11]['area3'] = Qu
-
-    form[12]['value'] = '否'
-    del form[12]['fieldItems'][0]
-
-    form[13]['value'] = '否'
-    del form[13]['fieldItems'][0]
-
-    form[14]['date'] = ""
-    form[14]['time'] = ""
-
-    form[15]['value'] = '否'
-    del form[15]['fieldItems'][0]
-
-    form[16]['value'] = '否'
-    del form[16]['fieldItems'][0]
-
-    form[17]['value'] = '否'
-    del form[17]['fieldItems'][0]
-
-    form[18]['fieldItems'] = [None]
-
-    form[19]['value'] = '否'
-    del form[19]['fieldItems'][0]
-
-    form[20]["area1"] = ""
-    form[20]["area2"] = ""
-    form[20]["area3"] = ""
-
-    form[21]['value'] = '36~37.2℃'
-    del form[21]['fieldItems'][1]
-    del form[21]['fieldItems'][1]
-
-    form[22]['value'] = '是'
-    del form[22]['fieldItems'][1]
     return form
 
 
